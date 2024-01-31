@@ -1,0 +1,10 @@
+{
+  "include_v": true,
+  "include_b": true,
+  "include_n": true,
+  "include_e": false,
+  "include_a": false,
+  "learning_filepath": "./learning/learning.json",
+  "max_learn_bin": 5,
+  "questions_filepath": "./questions/questions.json"
+}
