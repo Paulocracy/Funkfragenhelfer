@@ -8,7 +8,7 @@ Programmatisch ist der Funkfragenhelfer in Rust geschrieben, außer einem kleine
 
 ## Installation
 
-Unter Windows ist der einfachste Weg, die .zip-Datei [im letzten Release](https://github.com/Paulocracy/Funkfragenhelfer/releases/latest) herunterzuladen, an einem beliebigen Ort zu entpacken und dann im entpackten Ordner "Funkfragenhelfer" die "funkfragenhelfer.exe" auszuführen.
+Unter Windows ist der einfachste Weg, die .zip-Datei "Funkfragenhelfer_Windows.zip" [im letzten Release](https://github.com/Paulocracy/Funkfragenhelfer/releases/latest) unter "Assets" herunterzuladen, an einem beliebigen Ort zu entpacken und dann im entpackten Ordner "Funkfragenhelfer" die "funkfragenhelfer.exe" auszuführen.
 
 Unter anderen, vom Autor bislang nicht getesteten, Systemen (wie Linux und MacOS) empfiehlt sich die Nutzung von Git und cargo, hierfür kloniert man zunächst das Repository:
 
