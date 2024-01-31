@@ -13,7 +13,7 @@ Unter Windows ist der einfachste Weg, die .zip-Datei [im letzten Release](https:
 Unter anderen, vom Autor bislang nicht getesteten, Systemen (wie Linux und MacOS) empfiehlt sich die Nutzung von Git und cargo, hierfür kloniert man zunächst das Repository:
 
 ```sh
-git clone <https://github.com/Paulocracy/Funkfragenhelfer>
+git clone https://github.com/Paulocracy/Funkfragenhelfer
 ```
 
 ...und kompiliert und führt das Programm mit Cargo aus:
