@@ -6,6 +6,8 @@ Dieses kleine Programm kann eine Unterstützung beim Lernen für die deutsche Am
 
 Programmatisch ist der Funkfragenhelfer in Rust geschrieben, außer einem kleinen Pythonskript, welches den ursprünglichen Fragenkatalog in ein für den Funkfragenhelfer leichter lesbares Format umwandelt, und nutzt die Bibliotheken eframe, egui und egui-extras für die graphische Benutzeroberfläche, rayon für ein wenig Parallelisierung und serde bzw. serde-json für die (De)serialisierung von JSON-Dateien. Dies ist eines meiner ersten in Rust verfassten Programme, daher gibt es im Code wahrscheinlich ein großes Verbesserungspotential. Erweiterte Kommentare folgen in späteren Versionen.
 
+Wer einen kompletten Lehrgang für die Amateurfunkprüfung, und alternative Apps mit mehr Funktionen und mehr unterstützten Systemen, für die Amateurfunkprüfung sucht, dem empfehle ich [50Ω](https://50ohm.de/) aus den Reihen des Deutschen Amateur-Radio-Clubs (DARC). Der hiesige kleine Funkfragenhelfer steht in keiner Verbindung mit 50Ω.
+
 ## Installation
 
 Unter Windows ist der einfachste Weg, die .zip-Datei "Funkfragenhelfer_Windows.zip" [im letzten Release](https://github.com/Paulocracy/Funkfragenhelfer/releases/latest) unter "Assets" herunterzuladen, an einem beliebigen Ort zu entpacken und dann im entpackten Ordner "Funkfragenhelfer" die "funkfragenhelfer.exe" auszuführen.
