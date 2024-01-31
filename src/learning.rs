@@ -121,7 +121,7 @@ pub fn get_next_print_question(
         let question = &eligible_questions[counter];
         let learn_state = learning
             .get(&question.identifier)
-            .unwrap_or(&LearnState { current_bin: 5 });
+            .unwrap_or(&LearnState { current_bin: 1 });
 
         let threshold = match learn_state.current_bin {
             1 => 5,
