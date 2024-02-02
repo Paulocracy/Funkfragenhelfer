@@ -1,3 +1,4 @@
+use crate::config::Config;
 use crate::question::Question;
 use crate::{config, helper};
 use rand::seq::SliceRandom;
@@ -9,6 +10,20 @@ use std::path::Path;
 #[derive(Serialize, Deserialize, Debug)]
 pub struct LearnState {
     pub current_bin: u64,
+    pub correct: u64,
+    pub wrong: u64,
+    pub marked: bool,
+}
+
+impl LearnState {
+    pub fn new() -> LearnState {
+        LearnState {
+            current_bin: 0,
+            correct: 0,
+            wrong: 0,
+            marked: false,
+        }
+    }
 }
 
 pub fn handle_correct_answer(
@@ -16,31 +31,22 @@ pub fn handle_correct_answer(
     identifier: &str,
     config: &config::Config,
 ) {
-    let current_bin = match learning.get(identifier) {
-        Some(learn_state) => learn_state.current_bin,
-        None => 1,
-    };
-    if current_bin > config.max_learn_bin {
-        return;
-    }
-    learning
+    let learn_state = learning
         .entry(identifier.to_string())
-        .or_insert(LearnState { current_bin: 0 })
-        .current_bin += 1;
+        .or_insert(LearnState::new());
+    learn_state.current_bin += 1;
+    if learn_state.current_bin > config.max_learn_bin {
+        learn_state.current_bin = config.max_learn_bin;
+    }
+    learn_state.correct += 1;
 }
 
 pub fn handle_wrong_answer(learning: &mut HashMap<String, LearnState>, identifier: &str) {
-    let current_bin = match learning.get(identifier) {
-        Some(learn_state) => learn_state.current_bin,
-        None => 2,
-    };
-    if current_bin <= 1 {
-        return;
-    }
-    learning
+    let learn_state = learning
         .entry(identifier.to_string())
-        .or_insert(LearnState { current_bin: 1 })
-        .current_bin = 1;
+        .or_insert(LearnState::new());
+    learn_state.current_bin = 1;
+    learn_state.wrong += 1;
 }
 
 pub fn load_learning() -> HashMap<String, LearnState> {
@@ -62,7 +68,6 @@ pub fn load_learning() -> HashMap<String, LearnState> {
 
 pub fn save_learning(learn_state: &HashMap<String, LearnState>) {
     let json_string = serde_json::to_string_pretty(learn_state).unwrap();
-    println!("C");
     helper::overwrite_file_str("./learning/learning.json", &json_string);
 }
 
@@ -113,26 +118,43 @@ impl PrintQuestion {
 
 pub fn get_next_print_question(
     eligible_questions: &Vec<Question>,
-    learning: &HashMap<String, LearnState>,
+    learning: &mut HashMap<String, LearnState>,
+    config: &Config,
 ) -> PrintQuestion {
     let mut rng: rand::prelude::ThreadRng = rand::thread_rng();
-    let mut counter = rng.gen_range(0..eligible_questions.len() - 1);
+    let mut index = rng.gen_range(0..eligible_questions.len() - 1);
+    let mut counter = 0;
+    let mut ignore_preferences = false;
     loop {
-        let question = &eligible_questions[counter];
+        let question = &eligible_questions[index];
         let learn_state = learning
-            .get(&question.identifier)
-            .unwrap_or(&LearnState { current_bin: 1 });
+            .entry(String::from(&question.identifier))
+            .or_insert(LearnState::new());
 
-        let threshold = match learn_state.current_bin {
-            1 => 5,
-            2 => 40,
-            3 => 70,
-            4 => 80,
-            5 => 85,
-            _ => 95,
-        };
+        let mut is_eligible = false;
+        if !ignore_preferences {
+            let is_marked = (learn_state.marked) && config.prefer_marked;
+            let is_wrong = (learn_state.wrong > 0) && config.prefer_wrong;
+            let is_new = ((learn_state.wrong + learn_state.correct) == 0) && config.prefer_new;
+            if is_marked || is_wrong || is_new {
+                is_eligible = true;
+            }
+        } else {
+            let threshold = match learn_state.current_bin {
+                1 => 5,
+                2 => 40,
+                3 => 70,
+                4 => 80,
+                5 => 85,
+                _ => 0,
+            };
 
-        if rng.gen_range(0..=100) > threshold {
+            if rng.gen_range(0..=100) > threshold {
+                is_eligible = true;
+            }
+        }
+
+        if is_eligible {
             let mut answer_shuffle = vec![Answer::A, Answer::B, Answer::C, Answer::D];
             answer_shuffle.shuffle(&mut rng);
 
@@ -142,10 +164,15 @@ pub fn get_next_print_question(
             };
         }
 
-        if counter >= eligible_questions.len() - 1 {
-            counter = 0;
+        if index >= eligible_questions.len() - 1 {
+            index = 0;
         } else {
-            counter += 1;
+            index += 1;
+        }
+
+        counter += 1;
+        if counter >= eligible_questions.len() {
+            ignore_preferences = true;
         }
     }
 }

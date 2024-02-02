@@ -11,6 +11,9 @@ pub struct Config {
     pub include_a: bool,
     pub learning_filepath: String,
     pub max_learn_bin: u64,
+    pub prefer_wrong: bool,
+    pub prefer_marked: bool,
+    pub prefer_new: bool,
     pub questions_filepath: String,
 }
 
@@ -24,6 +27,9 @@ impl Config {
             include_a: false,
             learning_filepath: String::from("./learning/learning.json"),
             max_learn_bin: 5,
+            prefer_wrong: false,
+            prefer_marked: false,
+            prefer_new: false,
             questions_filepath: String::from("./questions/questions.json"),
         }
     }

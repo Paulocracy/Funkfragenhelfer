@@ -12,5 +12,5 @@ fn main() {
     let questions_json_str = helper::read_filetext("./resources/ffh_questions.json");
     let questions: Vec<question::Question> = serde_json::from_str(&questions_json_str).unwrap();
 
-    gui::run(config, learning, questions);
+    gui::run(config, learning, questions).unwrap();
 }

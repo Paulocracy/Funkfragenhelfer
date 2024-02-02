@@ -1,6 +1,6 @@
 use crate::{
     config::Config,
-    learning::{self, Answer, LearnState},
+    learning::{self, save_learning, Answer, LearnState},
     question,
 };
 use eframe::{
@@ -22,7 +22,8 @@ pub fn run(
 
     // Application state
     let mut eligible_questions = question::get_eligible_questions(&questions, &config);
-    let mut print_question = learning::get_next_print_question(&eligible_questions, &learning);
+    let mut print_question =
+        learning::get_next_print_question(&eligible_questions, &mut learning, &config);
     let mut has_answered = false;
     let mut has_answered_first = false;
     let mut given_answer: usize = 0;
@@ -85,6 +86,20 @@ pub fn run(
                     }
                 });
 
+                ui.horizontal(|ui| {
+                    ui.label("Nur anzuzeigen (wenn gegeben):");
+                    if ui.checkbox(&mut config.prefer_wrong, "Falsch beantwortete Fragen").changed() {
+                        config.save();
+                    }
+                    if ui.checkbox(&mut config.prefer_marked, "Markierte Fragen").changed() {
+                        config.save();
+                    }
+                    if ui.checkbox(&mut config.prefer_new, "Neue Fragen").changed() {
+                        config.save();
+                    }
+                });
+
+                ui.separator();
                 if print_question.question.picture_question.len() > 0 {
                     let pathstr = format!(
                         "file://resources/fragenkatalog/svgs/{}.svg",
@@ -106,7 +121,6 @@ pub fn run(
                     }
                 }
 
-                ui.separator();
                 ui.heading(&print_question.question.identifier);
                 ui.label(&print_question.question.question);
 
@@ -144,6 +158,19 @@ pub fn run(
                 }
 
                 ui.separator();
+                if learning.get(&print_question.question.identifier).unwrap().marked {
+                    if ui.button("[X] Entmarkieren").clicked() {
+                        learning.get_mut(&print_question.question.identifier).unwrap().marked = false;
+                    }
+                    learning::save_learning(&learning);
+                } else {
+                    if ui.button("[ ] Markieren").clicked() {
+                        learning.get_mut(&print_question.question.identifier).unwrap().marked = true;
+                    }
+                    learning::save_learning(&learning);
+                }
+
+                ui.separator();
                 if has_answered {
                     if print_question.answer_shuffle[given_answer] == Answer::A {
                         ui.label("Korrekt!");
@@ -172,8 +199,13 @@ pub fn run(
                     }
                     if ui.button("Nächste Frage").clicked() {
                         print_question =
-                            learning::get_next_print_question(&eligible_questions, &learning);
+                            learning::get_next_print_question(&eligible_questions, &mut learning, &config);
                         has_answered = false;
+                    }
+                } else {
+                    if ui.button("Überspringen").clicked() {
+                        print_question =
+                            learning::get_next_print_question(&eligible_questions, &mut learning, &config);
                     }
                 }
             });
