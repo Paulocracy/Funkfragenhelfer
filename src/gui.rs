@@ -162,12 +162,12 @@ pub fn run(
                     if ui.button("[X] Entmarkieren").clicked() {
                         learning.get_mut(&print_question.question.identifier).unwrap().marked = false;
                     }
-                    learning::save_learning(&learning);
+                    save_learning(&learning);
                 } else {
                     if ui.button("[ ] Markieren").clicked() {
                         learning.get_mut(&print_question.question.identifier).unwrap().marked = true;
                     }
-                    learning::save_learning(&learning);
+                    save_learning(&learning);
                 }
 
                 ui.separator();

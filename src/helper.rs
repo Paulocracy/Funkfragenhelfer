@@ -4,6 +4,7 @@ use rayon::prelude::*;
 use std::fs;
 use std::io::Write;
 use std::path::Path;
+use std::time::{SystemTime, UNIX_EPOCH};
 
 pub fn read_filelines(filename: &str) -> Vec<String> {
     fs::read_to_string(filename)
@@ -54,5 +55,13 @@ pub fn ensure_dir_existence(dir: &str) {
         Err(e) => {
             println!("Error in creating {}: {}", dir, e)
         }
+    }
+}
+
+pub fn get_current_unixtime_in_sec() -> u64 {
+    let now = SystemTime::now();
+    match now.duration_since(UNIX_EPOCH) {
+        Ok(n) => n.as_secs(),
+        Err(_) => 0,
     }
 }

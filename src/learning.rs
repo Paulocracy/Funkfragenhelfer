@@ -13,6 +13,8 @@ pub struct LearnState {
     pub correct: u64,
     pub wrong: u64,
     pub marked: bool,
+    pub rounds_since_wrong: u64,
+    pub time_last_answer: u64,
 }
 
 impl LearnState {
@@ -22,6 +24,8 @@ impl LearnState {
             correct: 0,
             wrong: 0,
             marked: false,
+            rounds_since_wrong: 0,
+            time_last_answer: 0,
         }
     }
 }
@@ -39,6 +43,8 @@ pub fn handle_correct_answer(
         learn_state.current_bin = config.max_learn_bin;
     }
     learn_state.correct += 1;
+    learn_state.rounds_since_wrong += 1;
+    learn_state.time_last_answer = helper::get_current_unixtime_in_sec();
 }
 
 pub fn handle_wrong_answer(learning: &mut HashMap<String, LearnState>, identifier: &str) {
@@ -47,6 +53,8 @@ pub fn handle_wrong_answer(learning: &mut HashMap<String, LearnState>, identifie
         .or_insert(LearnState::new());
     learn_state.current_bin = 1;
     learn_state.wrong += 1;
+    learn_state.rounds_since_wrong = 0;
+    learn_state.time_last_answer = helper::get_current_unixtime_in_sec();
 }
 
 pub fn load_learning() -> HashMap<String, LearnState> {
@@ -148,10 +156,7 @@ pub fn get_next_print_question(
                 5 => 85,
                 _ => 0,
             };
-
-            if rng.gen_range(0..=100) > threshold {
-                is_eligible = true;
-            }
+            is_eligible = rng.gen_range(0..=100) > threshold;
         }
 
         if is_eligible {
@@ -164,15 +169,9 @@ pub fn get_next_print_question(
             };
         }
 
-        if index >= eligible_questions.len() - 1 {
-            index = 0;
-        } else {
-            index += 1;
-        }
+        index = (index + 1) % eligible_questions.len();
 
         counter += 1;
-        if counter >= eligible_questions.len() {
-            ignore_preferences = true;
-        }
+        ignore_preferences = counter >= eligible_questions.len();
     }
 }
