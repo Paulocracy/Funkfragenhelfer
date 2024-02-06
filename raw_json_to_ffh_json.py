@@ -1,3 +1,16 @@
+"""
+This little script converts the Bundesnetzegentur JSON with the
+amateur radio questions into an easier format (easier for the
+Funkfragenhelfer) without sections and titles. Just compare
+"resources/fragenkatalog/fragenkatalog.json" to
+"resources/ffh_questions.json" to see the difference.
+
+This script has no special dependencies and should run with any
+newer Python 3 interpreter (new as of 2024). It was tested with
+Python 3.9, but can probably run with any newer version, and
+maybe even older versions, too.
+"""
+
 import json
 from typing import Any
 
