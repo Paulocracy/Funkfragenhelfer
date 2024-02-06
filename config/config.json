@@ -6,5 +6,8 @@
   "include_a": false,
   "learning_filepath": "./learning/learning.json",
   "max_learn_bin": 5,
+  "prefer_wrong": false,
+  "prefer_marked": false,
+  "prefer_new": false,
   "questions_filepath": "./questions/questions.json"
 }
