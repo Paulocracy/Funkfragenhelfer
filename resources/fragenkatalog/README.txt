@@ -1,5 +1,5 @@
 ﻿Prüfungsfragen zum Erwerb von Amateurfunkprüfungsbescheinigungen
-2. Auflage, Dezember 2023
+3. Auflage, März 2024
 
 Hinweis:
 ========
@@ -17,7 +17,7 @@ elektronischen Netzwerken eingebunden werden.
 
 Bei der Nutzung ist sicherzustellen, dass folgende Angaben als Quellenvermerk enthalten sind:
 
-"Prüfungsfragen zum Erwerb von Amateurfunkprüfungsbescheinigungen, Bundesnetzagentur, 2. Auflage, Dezember 2023, 
+"Prüfungsfragen zum Erwerb von Amateurfunkprüfungsbescheinigungen, Bundesnetzagentur, 3. Auflage, März 2024, 
 (www.bundesnetzagentur.de/amateurfunk), Datenlizenz Deutschland – Namensnennung – Version 2.0 
 (www.govdata.de/dl-de/by-2-0)"
 

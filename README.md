@@ -36,6 +36,6 @@ cargo run
 ## Lizenzen
 
 Als Quelle für die hier genutzten Fragen dient der von der von der Bundesnetzagentur für Elektrizität, Gas,
-Telekommunikation, Post und Eisenbahnen bereitgestellte Datensatz "Prüfungsfragen zum Erwerb von Amateurfunkprüfungsbescheinigungen, 2. Auflage, Dezember 2023", der über [diesen Link (Stand: Januar 2024)](https://www.bundesnetzagentur.de/SharedDocs/Downloads/DE/Sachgebiete/Telekommunikation/Unternehmen_Institutionen/Frequenzen/Amateurfunk/Fragenkatalog/PruefungsfragenZIP.zip) bezogen wurde und unter den Bedingungen der ["Datenlizenz Deutschland – Namensnennung – Version 2.0"](https://www.govdata.de/dl-de/by-2-0) lizenziert ist. Der Datensatz selber ist in diesem Repository im Unterordner "resources/fragenkatalog" auffindbar.
+Telekommunikation, Post und Eisenbahnen bereitgestellte Datensatz "Prüfungsfragen zum Erwerb von Amateurfunkprüfungsbescheinigungen 3. Auflage, März 2024", der über [diesen Link (Stand: Januar 2024)](https://www.bundesnetzagentur.de/SharedDocs/Downloads/DE/Sachgebiete/Telekommunikation/Unternehmen_Institutionen/Frequenzen/Amateurfunk/Fragenkatalog/PruefungsfragenZIP.zip) bezogen wurde und unter den Bedingungen der ["Datenlizenz Deutschland – Namensnennung – Version 2.0"](https://www.govdata.de/dl-de/by-2-0) lizenziert ist. Der Datensatz selber ist in diesem Repository im Unterordner "resources/fragenkatalog" auffindbar.
 
 Der Funkfragenhelfer selber, ohne den Prüfungskatalog, ist unter der Apache-Lizenz 2.0 lizensiert, welche in der Datei [LICENSE](./LICENSE) abgerufen werden kann.
