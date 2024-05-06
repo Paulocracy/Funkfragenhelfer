@@ -63,11 +63,11 @@ impl Config {
     /// Returns whether or not all categories were set off (used by the GUI to prevent that
     /// a user shuts off all questions).
     pub fn all_includes_false(&self) -> bool {
-        return !self.include_a
+        !self.include_a
             && !self.include_b
             && !self.include_e
             && !self.include_n
-            && !self.include_v;
+            && !self.include_v
     }
 }
 

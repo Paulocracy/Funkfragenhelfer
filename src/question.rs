@@ -90,5 +90,5 @@ pub fn get_eligible_questions(questions: &Vec<Question>, config: &Config) -> Vec
             }
         }
     }
-    return eligible_questions;
+    eligible_questions
 }

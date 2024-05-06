@@ -266,7 +266,7 @@ pub fn get_next_print_question(
         // Variable choosing whether or not a question is chosen for the return value
         let mut is_chosen = false;
         // If we didn't already look at all questions...
-        if !(counter >= eligible_questions.len()) {
+        if counter < eligible_questions.len() {
             // ...look up if any filters apply to the current question...
             let is_marked = (learn_state.marked) && config.prefer_marked;
             let is_wrong = (learn_state.wrong > 0) && config.prefer_wrong;

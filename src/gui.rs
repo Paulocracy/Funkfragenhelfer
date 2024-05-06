@@ -80,7 +80,7 @@ pub fn run(
                     ui.label("Fragekategorien:");
                     let mut update_config = |config: &mut Config| {
                         config.save();
-                        eligible_questions = question::get_eligible_questions(&questions, &config);
+                        eligible_questions = question::get_eligible_questions(&questions, config);
                         statistics = Statistics::new(&eligible_questions, &learn_states);
                     };
                     if ui.checkbox(&mut config.include_v, "V").changed() {
@@ -133,7 +133,7 @@ pub fn run(
                 // a picture really exists as there seem to be some wrong picture associations
                 // in the Bundesnetzagentur dataset.
                 ui.separator();
-                if print_question.question.picture_question.len() > 0 {
+                if !print_question.question.picture_question.is_empty() {
                     let pathstr = format!(
                         "file://resources/fragenkatalog/svgs/{}.svg",
                         print_question.question.picture_question
@@ -160,7 +160,7 @@ pub fn run(
                 ui.label(&print_question.question.question);
 
                 // Show picture answers (if they exist)
-                if print_question.question.picture_a.len() > 0 {
+                if !print_question.question.picture_a.is_empty() {
                     ui.separator();
 
                     ui.horizontal(|ui| {
@@ -184,12 +184,10 @@ pub fn run(
                 // Handle answer printing (if an answer has no text, "" is displayed)
                 for &index_name_tuple in &index_name_tuples {
                     ui.separator();
-                    if ui.button(format!("{} {}", answer_text, index_name_tuple.1)).clicked() {
-                        if !has_answered {
-                            has_answered = true;
-                            has_answered_first = true;
-                            given_answer = index_name_tuple.0;
-                        }
+                    if ui.button(format!("{} {}", answer_text, index_name_tuple.1)).clicked() && !has_answered {
+                        has_answered = true;
+                        has_answered_first = true;
+                        given_answer = index_name_tuple.0;
                     }
                     ui.label(print_question.get_shuffled_answer(index_name_tuple.0));
                 }
@@ -246,25 +244,23 @@ pub fn run(
                             learning::get_next_print_question(&eligible_questions, &mut learn_states, &config);
                         has_answered = false;
                     }
-                } else {
-                    if ui.button("Überspringen").clicked() {
-                        print_question =
-                            learning::get_next_print_question(&eligible_questions, &mut learn_states, &config);
-                    }
+                } else if ui.button("Überspringen").clicked() {
+                    print_question =
+                        learning::get_next_print_question(&eligible_questions, &mut learn_states, &config);
                 }
                 ui.separator();
-                ui.label(RichText::new(format!("Aktuelle Session:")).strong());
+                ui.label(RichText::new("Aktuelle Session:".to_string()).strong());
                 ui.label(format!("Korrekt beantwortete Fragen: {}, {} %", correct_answers_since_start, if answers_since_start > 0 {correct_answers_since_start * 100 / answers_since_start} else {0}));
                 ui.label(format!("Insgesamt beantwortete Fragen: {}", answers_since_start));
                 ui.separator();
-                ui.label(RichText::new(format!("Lernfortschritt:")).strong());
+                ui.label(RichText::new("Lernfortschritt:".to_string()).strong());
                 ui.label(format!("Korrekt beantwortete Fragen: {}, {} %", statistics.correct_answers, if statistics.questions > 0 {statistics.correct_answers * 100 / statistics.questions} else {0}));
                 ui.label(format!("Noch nicht korrekt beantwortete Fragen: {}, {} %", statistics.no_correct_answers, if statistics.questions > 0 {statistics.no_correct_answers * 100 / statistics.questions} else {0}));
                 ui.label(format!("Fragen insgesamt: {}", statistics.questions));
                 ui.separator();
                 let mut keys = statistics.count_per_bin.keys().collect::<Vec<_>>();
                 keys.sort();
-                ui.label(RichText::new(format!("Fragen pro Lerntopf:")).strong());
+                ui.label(RichText::new("Fragen pro Lerntopf:".to_string()).strong());
                 for i in keys.iter() {
                     let count = &statistics.count_per_bin.get(i).unwrap();
                     ui.label(format!("Lerntopf '{}': {}", i, count));
