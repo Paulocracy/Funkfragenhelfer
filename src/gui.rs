@@ -59,7 +59,7 @@ pub fn run(
 
     // GUI main run loop; We use "run_simple_native" as the simplest
     // egui wrapper available.
-    eframe::run_simple_native("Funkfragenhelfer V 0.2.1", options, move |ctx, _frame| {
+    eframe::run_simple_native("Funkfragenhelfer V 0.3.0", options, move |ctx, _frame| {
         // Image loader do teh question images; Can also load SVGs
         egui_extras::install_image_loaders(ctx);
 
