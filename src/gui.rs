@@ -10,7 +10,7 @@
 // IMPORTS SECTION //
 use crate::{
     config::Config,
-    learning::{self, save_learning, Answer, LearnStates},
+    learning::{self, save_learning, Answer, LearnStates, Statistics},
     question,
 };
 use eframe::{
@@ -51,6 +51,9 @@ pub fn run(
     let mut given_answer: usize = 0;
     let mut print_question =
         learning::get_next_print_question(&eligible_questions, &mut learn_states, &config);
+    let mut correct_answers_since_start = 0;
+    let mut answers_since_start = 0;
+    let mut statistics = Statistics::new(&eligible_questions, &learn_states);
 
     let index_name_tuples = vec![(0, "A"), (1, "B"), (2, "C"), (3, "D")];
 
@@ -75,40 +78,40 @@ pub fn run(
                 // Show and handle question categories
                 ui.horizontal(|ui| {
                     ui.label("Fragekategorien:");
+                    let mut update_config = |config: &mut Config| {
+                        config.save();
+                        eligible_questions = question::get_eligible_questions(&questions, config);
+                        statistics = Statistics::new(&eligible_questions, &learn_states);
+                    };
                     if ui.checkbox(&mut config.include_v, "V").changed() {
                         if config.all_includes_false() {
                             config.include_v = true;
                         }
-                        config.save();
-                        eligible_questions = question::get_eligible_questions(&questions, &config);
+                        update_config(&mut config);
                     }
                     if ui.checkbox(&mut config.include_b, "B").changed() {
                         if config.all_includes_false() {
                             config.include_b = true;
                         }
-                        config.save();
-                        eligible_questions = question::get_eligible_questions(&questions, &config);
+                        update_config(&mut config);
                     }
                     if ui.checkbox(&mut config.include_n, "N").changed() {
                         if config.all_includes_false() {
                             config.include_n = true;
                         }
-                        config.save();
-                        eligible_questions = question::get_eligible_questions(&questions, &config);
+                        update_config(&mut config);
                     }
                     if ui.checkbox(&mut config.include_e, "E").changed() {
                         if config.all_includes_false() {
                             config.include_e = true;
                         }
-                        config.save();
-                        eligible_questions = question::get_eligible_questions(&questions, &config);
+                        update_config(&mut config);
                     }
                     if ui.checkbox(&mut config.include_a, "A").changed() {
                         if config.all_includes_false() {
                             config.include_a = true;
                         }
-                        config.save();
-                        eligible_questions = question::get_eligible_questions(&questions, &config);
+                        update_config(&mut config);
                     }
                 });
 
@@ -130,7 +133,7 @@ pub fn run(
                 // a picture really exists as there seem to be some wrong picture associations
                 // in the Bundesnetzagentur dataset.
                 ui.separator();
-                if print_question.question.picture_question.len() > 0 {
+                if !print_question.question.picture_question.is_empty() {
                     let pathstr = format!(
                         "file://resources/fragenkatalog/svgs/{}.svg",
                         print_question.question.picture_question
@@ -157,7 +160,7 @@ pub fn run(
                 ui.label(&print_question.question.question);
 
                 // Show picture answers (if they exist)
-                if print_question.question.picture_a.len() > 0 {
+                if !print_question.question.picture_a.is_empty() {
                     ui.separator();
 
                     ui.horizontal(|ui| {
@@ -181,12 +184,10 @@ pub fn run(
                 // Handle answer printing (if an answer has no text, "" is displayed)
                 for &index_name_tuple in &index_name_tuples {
                     ui.separator();
-                    if ui.button(format!("{} {}", answer_text, index_name_tuple.1)).clicked() {
-                        if !has_answered {
-                            has_answered = true;
-                            has_answered_first = true;
-                            given_answer = index_name_tuple.0;
-                        }
+                    if ui.button(format!("{} {}", answer_text, index_name_tuple.1)).clicked() && !has_answered {
+                        has_answered = true;
+                        has_answered_first = true;
+                        given_answer = index_name_tuple.0;
                     }
                     ui.label(print_question.get_shuffled_answer(index_name_tuple.0));
                 }
@@ -211,12 +212,15 @@ pub fn run(
                     if print_question.answer_shuffle[given_answer] == Answer::A {
                         ui.label("Korrekt!");
                         if has_answered_first {
+                            correct_answers_since_start += 1;
+                            answers_since_start += 1;
                             learning::handle_correct_answer(
                                 &mut learn_states,
                                 &print_question.question.identifier,
                                 &config,
                             );
                             learning::save_learning(&learn_states);
+                            statistics = Statistics::new(&eligible_questions, &learn_states);
                             has_answered_first = false;
                         }
                     } else {
@@ -225,11 +229,13 @@ pub fn run(
                             print_question.get_correct_answer()
                         ));
                         if has_answered_first {
+                            answers_since_start += 1;
                             learning::handle_wrong_answer(
                                 &mut learn_states,
                                 &print_question.question.identifier,
                             );
                             learning::save_learning(&learn_states);
+                            statistics = Statistics::new(&eligible_questions, &learn_states);
                             has_answered_first = false;
                         }
                     }
@@ -238,11 +244,26 @@ pub fn run(
                             learning::get_next_print_question(&eligible_questions, &mut learn_states, &config);
                         has_answered = false;
                     }
-                } else {
-                    if ui.button("Überspringen").clicked() {
-                        print_question =
-                            learning::get_next_print_question(&eligible_questions, &mut learn_states, &config);
-                    }
+                } else if ui.button("Überspringen").clicked() {
+                    print_question =
+                        learning::get_next_print_question(&eligible_questions, &mut learn_states, &config);
+                }
+                ui.separator();
+                ui.label(RichText::new("Aktuelle Session:".to_string()).strong());
+                ui.label(format!("Korrekt beantwortete Fragen: {}, {} %", correct_answers_since_start, if answers_since_start > 0 {correct_answers_since_start * 100 / answers_since_start} else {0}));
+                ui.label(format!("Insgesamt beantwortete Fragen: {}", answers_since_start));
+                ui.separator();
+                ui.label(RichText::new("Lernfortschritt:".to_string()).strong());
+                ui.label(format!("Korrekt beantwortete Fragen: {}, {} %", statistics.correct_answers, if statistics.questions > 0 {statistics.correct_answers * 100 / statistics.questions} else {0}));
+                ui.label(format!("Noch nicht korrekt beantwortete Fragen: {}, {} %", statistics.no_correct_answers, if statistics.questions > 0 {statistics.no_correct_answers * 100 / statistics.questions} else {0}));
+                ui.label(format!("Fragen insgesamt: {}", statistics.questions));
+                ui.separator();
+                let mut keys = statistics.count_per_bin.keys().collect::<Vec<_>>();
+                keys.sort();
+                ui.label(RichText::new("Fragen pro Lerntopf:".to_string()).strong());
+                for i in keys.iter() {
+                    let count = &statistics.count_per_bin.get(i).unwrap();
+                    ui.label(format!("Lerntopf '{}': {}", i, count));
                 }
             });
         });

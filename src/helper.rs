@@ -52,7 +52,7 @@ pub fn get_filenames_in_dir(dir: &str) -> Vec<String> {
         .par_bridge()
         .map(|path| path.unwrap().path())
         .filter(|path| path.is_file())
-        .map(|path| path.to_str().unwrap().to_owned().replace("\\", "/"))
+        .map(|path| path.to_str().unwrap().to_owned().replace('\\', "/"))
         .collect();
     filenames
 }

@@ -9,6 +9,7 @@ use crate::{config, helper};
 use rand::seq::SliceRandom;
 use rand::{self, Rng};
 use serde::{Deserialize, Serialize};
+use std::borrow::BorrowMut;
 use std::collections::HashMap;
 use std::path::Path;
 
@@ -63,6 +64,18 @@ impl LearnState {
             time_last_answer: 0,
         }
     }
+}
+
+/// Statistic information about the learning state.
+pub struct Statistics {
+    /// Number of questions currently learning
+    pub questions: usize,
+    /// Number of questions currrently learning which have at least one correct answer
+    pub correct_answers: usize,
+    /// Number of questions currrently learning which have no correct answer
+    pub no_correct_answers: usize,
+    /// Number of questions per learning "bin"
+    pub count_per_bin: HashMap<u64, usize>,
 }
 
 /// Type alias for the full collection of LearnState instances.
@@ -253,7 +266,7 @@ pub fn get_next_print_question(
         // Variable choosing whether or not a question is chosen for the return value
         let mut is_chosen = false;
         // If we didn't already look at all questions...
-        if !(counter >= eligible_questions.len()) {
+        if counter < eligible_questions.len() {
             // ...look up if any filters apply to the current question...
             let is_marked = (learn_state.marked) && config.prefer_marked;
             let is_wrong = (learn_state.wrong > 0) && config.prefer_wrong;
@@ -295,5 +308,36 @@ pub fn get_next_print_question(
         index = (index + 1) % eligible_questions.len();
         // Raise as we just looked at one more question
         counter += 1;
+    }
+}
+
+impl Statistics {
+    /// Creates a new Statistics struct for the given questions to learn and the current LearnStates.
+    pub fn new(eligible_questions: &Vec<Question>, learning: &LearnStates) -> Statistics {
+        let mut correct_answers = 0;
+        let mut no_correct_answers = 0;
+        let questions = eligible_questions.len();
+        let mut count_per_bin = HashMap::new();
+
+        for question in eligible_questions {
+            if let Some(state) = learning.get(&question.identifier) {
+                if state.correct > 0 {
+                    correct_answers += 1;
+                } else {
+                    no_correct_answers += 1;
+                }
+                *count_per_bin
+                    .entry(state.current_bin)
+                    .or_insert(0)
+                    .borrow_mut() += 1;
+            }
+        }
+
+        Statistics {
+            correct_answers,
+            no_correct_answers,
+            questions,
+            count_per_bin,
+        }
     }
 }
